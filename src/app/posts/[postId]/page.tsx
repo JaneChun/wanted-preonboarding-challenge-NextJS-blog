@@ -1,6 +1,6 @@
 import React from 'react';
 import { getPostData, getSortedPostsData } from '../../../../lib/posts';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import getFormattedDate from '../../../../lib/getFormattedDate';
 import Link from 'next/link';
 
@@ -10,15 +10,38 @@ type Props = {
 	};
 };
 
-export default async function Post({ params }: Props) {
-	const posts = getSortedPostsData(); // deduped.
-	const { postId } = params;
+export function generateStaticParams() {
+	const posts = getSortedPostsData();
 
-	if (!posts.find((post) => post.id === postId)) {
-		return notFound();
+	if (!posts) return [];
+
+	return posts.map((post) => ({
+		postId: post.id,
+	}));
+}
+
+export async function generateMetadata({ params: { postId } }: Props) {
+	const post = await getPostData(postId);
+
+	if (!post) {
+		return {
+			title: 'Post Not Found',
+		};
 	}
 
-	const { title, date, contentHtml } = await getPostData(postId);
+	return {
+		title: post.title,
+	};
+}
+
+export default async function Post({ params: { postId } }: Props) {
+	const posts = await getSortedPostsData(); // deduped.
+
+	if (!posts.find((post) => post.id === postId)) notFound();
+
+	const post = await getPostData(postId);
+
+	const { title, date, contentHtml } = post;
 
 	const formattedDate = getFormattedDate(date);
 

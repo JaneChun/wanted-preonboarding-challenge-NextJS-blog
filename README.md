@@ -20,6 +20,10 @@
 
  <hr />
 
+## 🔗배포 링크
+
+https://wanted-preonboarding-challenge-next-js-blog.vercel.app/
+
 ## 📍구현 화면
 
 [](url)
